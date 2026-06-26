@@ -2,7 +2,9 @@
 
 CSIT 567 project comparing **ECDSA/ECDH** (classical) with **ML-DSA-44/ML-KEM-768** (post-quantum).
 
-**Project site:** [faithchris.github.io/pqc-crypto-comparison](https://faithchris.github.io/pqc-crypto-comparison/)
+**Project site:** [faithchris.github.io/pqc-crypto-comparison](https://faithchris.github.io/pqc-crypto-comparison/) — full paper write-up with presentation & poster content, figures, and results.
+
+**Authors:** Allison Buckingham & Faith Puppala · CSIT 567 Spring 2026 · Mentor: Stefan A. Robila
 
 ## Features
 
