@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<!-- AI-Generated Code - 2026-06-26 - Composer -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post-Quantum vs Classical Cryptography — CSIT 567</title>
+  <meta name="description" content="Benchmarking ECDSA/ECDH against ML-DSA-44/ML-KEM-768: timings, artifact sizes, and real-world PQC deployment context.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">CSIT 567 Research Project</span>
+    <h1>Post-Quantum vs Classical Cryptography</h1>
+    <p class="subtitle">
+      A hands-on comparison of elliptic-curve schemes (ECDSA, ECDH) with NIST post-quantum standards
+      (ML-DSA-44, ML-KEM-768) — including a live web demo, reproducible benchmarks, and analysis of
+      the security–performance tradeoffs facing real HTTPS deployments.
+    </p>
+    <div class="hero-links">
+      <a href="https://github.com/faithchris/pqc-crypto-comparison">View source on GitHub</a>
+      <a href="#results">Jump to results</a>
+      <a href="#figures">View figures</a>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <ul>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#methods">Methods</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#figures">Figures</a></li>
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#deployment">Real-world</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <p>
+      We provide a small web application that exercises <strong>ECDSA (P-256)</strong> and
+      <strong>ML-DSA-44</strong> for signing and verification, and <strong>ECDH (P-256)</strong> and
+      <strong>ML-KEM-768</strong> for key agreement. For ML-KEM we emphasize the
+      <em>ciphertext</em> produced by encapsulation (base64-encoded in the browser because ciphertext
+      is binary); the shared secret is derived by decapsulation but is not the on-wire encrypted payload
+      in the same sense as ciphertext. ECDH establishes a shared secret <em>without</em> a ciphertext
+      comparable to ML-KEM's.
+    </p>
+    <p><strong>Keywords:</strong> ML-KEM; ECDH; key encapsulation; Shor's algorithm; HTTPS; Merkle tree certificates</p>
+  </section>
+
+  <section id="background">
+    <h2>Background: Why Post-Quantum Cryptography?</h2>
+
+    <h3>Shor's Algorithm and Classical Risk</h3>
+    <p>
+      <strong>Shor's algorithm</strong> is a quantum algorithm that solves the integer factorization and
+      discrete logarithm problems in polynomial time on a sufficiently large, fault-tolerant quantum computer.
+      RSA relies on the hardness of factoring large composites; elliptic-curve schemes used in practice
+      (including ECDSA and ECDH over P-256) rely on variants of the discrete-logarithm problem. If Shor's
+      algorithm could be run at cryptographically relevant scales, those problems would become easy,
+      breaking confidentiality and authenticity for systems that depend only on those assumptions.
+    </p>
+
+    <h3>How PQC Differs</h3>
+    <p>
+      Post-quantum schemes are chosen so that, as of current knowledge, no polynomial-time quantum attack
+      analogous to Shor's is known. Lattice-based standards such as ML-DSA and ML-KEM rest on different
+      hardness assumptions (structured lattice problems) for which Shor's algorithm does not directly apply
+      in the same way.
+    </p>
+
+    <div class="card-grid">
+      <div class="card classical">
+        <div class="label">Classical</div>
+        <h4>ECDSA &amp; ECDH (P-256)</h4>
+        <p>Elliptic-curve math. Smaller keys and signatures. Vulnerable to future quantum attacks via Shor's algorithm.</p>
+      </div>
+      <div class="card pqc">
+        <div class="label">Post-Quantum</div>
+        <h4>ML-DSA-44 &amp; ML-KEM-768</h4>
+        <p>Lattice-based (Module-LWE). Resistant to known quantum attacks. Larger artifacts and higher CPU cost on classical hardware.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Scope note:</strong> ML-DSA and ML-KEM target <em>public-key (asymmetric)</em> problems —
+      signatures and key encapsulation. Symmetric cryptography (e.g., AES-GCM) is generally less threatened
+      by Shor's algorithm; real deployments typically hybridize PQC asymmetric primitives with efficient
+      symmetric encryption.
+    </div>
+  </section>
+
+  <section id="methods">
+    <h2>Methods &amp; Toolchain</h2>
+    <p>Two complementary tools produce the results on this page:</p>
+    <ul>
+      <li>
+        <strong>Web demo</strong> (<code>encryptionCompare_v1.py</code>) — a Flask app at
+        <code>http://127.0.0.1:5000</code> that runs signature and key-agreement comparisons in the browser,
+        reporting timings (ms) and artifact sizes (bytes/bits). Fresh key material is generated per request.
+      </li>
+      <li>
+        <strong>Offline benchmarks</strong> (<code>benchmark.py</code>) — repeats measurements over many
+        runs, exports CSV tables, and generates matplotlib figures saved under <code>results/</code>.
+      </li>
+    </ul>
+
+    <h3>Measurement conventions</h3>
+    <ul>
+      <li><strong>Signature sizes</strong> — length of the digital signature object (not the user's message).</li>
+      <li><strong>ML-KEM ciphertext</strong> — the principal on-wire output of encapsulation; decapsulation recovers the shared secret.</li>
+      <li><strong>ECDH</strong> — no KEM-style ciphertext; peers exchange public keys and derive a shared secret.</li>
+    </ul>
+
+    <p class="env-note">
+      Benchmark environment: Linux 6.8.0 · Python 3.12 · N = 30 runs for aggregate timings ·
+      libraries: <code>cryptography</code>, <code>dilithium-py</code>, <code>kyber-py</code>
+    </p>
+  </section>
+
+  <section id="results">
+    <h2>Results</h2>
+
+    <h3>Table I — Digital Signatures (timing)</h3>
+    <p>Compares ML-DSA-44 (FIPS 204) with ECDSA on P-256 (FIPS 186-4). Mean wall-clock time in milliseconds ± sample standard deviation.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Operation</th>
+          <th class="num">Mean (ms)</th>
+          <th class="num">Std dev</th>
+          <th class="num">N</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="pqc-row"><td>ML-DSA-44</td><td>Key pair generation</td><td class="num">6.23</td><td class="num">0.18</td><td class="num">30</td></tr>
+        <tr class="pqc-row"><td>ML-DSA-44</td><td>Sign message</td><td class="num">37.20</td><td class="num">23.36</td><td class="num">30</td></tr>
+        <tr class="pqc-row"><td>ML-DSA-44</td><td>Verify signature</td><td class="num">7.49</td><td class="num">0.24</td><td class="num">30</td></tr>
+        <tr class="classical-row"><td>ECDSA (P-256)</td><td>Key pair generation</td><td class="num">0.12</td><td class="num">0.19</td><td class="num">30</td></tr>
+        <tr class="classical-row"><td>ECDSA (P-256)</td><td>Sign message</td><td class="num">0.19</td><td class="num">0.48</td><td class="num">30</td></tr>
+        <tr class="classical-row"><td>ECDSA (P-256)</td><td>Verify signature</td><td class="num">0.11</td><td class="num">0.01</td><td class="num">30</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Table II — Key Agreement (timing)</h3>
+    <p>Compares ML-KEM-768 (FIPS 203) with ECDH on P-256. Encapsulate produces a ciphertext; decapsulate recovers the shared secret.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Operation</th>
+          <th class="num">Mean (ms)</th>
+          <th class="num">Std dev</th>
+          <th class="num">N</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="pqc-row"><td>ML-KEM-768</td><td>Key pair generation</td><td class="num">3.52</td><td class="num">0.09</td><td class="num">30</td></tr>
+        <tr class="pqc-row"><td>ML-KEM-768</td><td>Encapsulate (ciphertext)</td><td class="num">4.55</td><td class="num">0.20</td><td class="num">30</td></tr>
+        <tr class="pqc-row"><td>ML-KEM-768</td><td>Decapsulate (shared secret)</td><td class="num">6.09</td><td class="num">0.17</td><td class="num">30</td></tr>
+        <tr class="classical-row"><td>ECDH (P-256)</td><td>Ephemeral key generation</td><td class="num">0.03</td><td class="num">0.001</td><td class="num">30</td></tr>
+        <tr class="classical-row"><td>ECDH (P-256)</td><td>Derive shared secret</td><td class="num">0.12</td><td class="num">0.02</td><td class="num">30</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Table III — Artifact Sizes</h3>
+    <p>Static sizes from one representative key generation. Use this table for on-the-wire footprint comparisons.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Output</th>
+          <th class="num">Bytes</th>
+          <th class="num">Bits</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="classical-row"><td>ECDSA (P-256)</td><td>Signature</td><td class="num">72</td><td class="num">576</td><td>Signature bytes, not message length</td></tr>
+        <tr class="classical-row"><td>ECDSA (P-256)</td><td>Public key</td><td class="num">91</td><td class="num">728</td><td>DER-encoded public key</td></tr>
+        <tr class="pqc-row"><td>ML-DSA-44</td><td>Signature</td><td class="num">2,420</td><td class="num">19,360</td><td>Lattice signature</td></tr>
+        <tr class="pqc-row"><td>ML-DSA-44</td><td>Public key</td><td class="num">1,312</td><td class="num">10,496</td><td>Lattice public key</td></tr>
+        <tr class="pqc-row"><td>ML-KEM-768</td><td>Ciphertext</td><td class="num">1,088</td><td class="num">8,704</td><td>Encapsulation output (base64 in UI)</td></tr>
+        <tr class="pqc-row"><td>ML-KEM-768</td><td>Public key (ek)</td><td class="num">1,184</td><td class="num">9,472</td><td>Encapsulation key</td></tr>
+        <tr class="classical-row"><td>ECDH (P-256)</td><td>Peer public key</td><td class="num">91</td><td class="num">728</td><td>No KEM ciphertext; keys only</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="figures">
+    <h2>Figures</h2>
+
+    <figure>
+      <img src="images/fig_sizes_bytes.png" alt="Bar chart comparing cryptographic artifact sizes in bytes for ECDSA, ML-DSA, ML-KEM, and ECDH">
+      <figcaption>
+        <strong>Fig. 1 — Cryptographic artifact sizes (bytes)</strong>
+        Post-quantum signatures and keys are substantially larger than their elliptic-curve counterparts.
+        ML-DSA signatures (~2.4 KB) are roughly 34× larger than ECDSA signatures (~72 B).
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="images/fig_timings_ms.png" alt="Bar chart of mean operation times in milliseconds with error bars for signing and key agreement operations">
+      <figcaption>
+        <strong>Fig. 2 — Mean operation times (ms) ± standard deviation</strong>
+        ML-DSA signing dominates CPU time in our Python implementation. Key agreement operations show
+        a similar pattern: ML-KEM encapsulation/decapsulation is slower than ECDH, though the absolute
+        difference is smaller than for signing.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="images/fig_sign_vs_message_length.png" alt="Line chart of mean sign time versus message length on a log scale for ECDSA and ML-DSA">
+      <figcaption>
+        <strong>Fig. 3 — Sign time vs message length</strong>
+        Mean ECDSA vs ML-DSA sign time at message lengths 10, 100, 1,000, and 10,000 bytes (N = 15 runs
+        per point). ML-DSA sign time shows higher variance; neither scheme's verify time depends strongly
+        on message length in this implementation.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="findings">
+    <h2>Key Findings</h2>
+    <ul class="findings-list">
+      <li>
+        <strong>Size tradeoff is dramatic.</strong> ML-DSA signatures are ~34× larger than ECDSA (2,420 B vs 72 B).
+        ML-KEM ciphertexts (~1,088 B) have no direct ECDH analogue — ECDH exchanges only public keys (~91 B).
+      </li>
+      <li>
+        <strong>Signing is the biggest timing gap.</strong> ML-DSA sign averaged ~37 ms vs ~0.19 ms for ECDSA —
+        roughly 195× slower in our environment. Verification and key-agreement gaps are smaller but still measurable.
+      </li>
+      <li>
+        <strong>Results match expected PQC costs.</strong> Larger lattice parameters buy quantum resistance at the
+        price of bandwidth and CPU — the same tensions engineers face when quantum-proofing TLS and certificate chains.
+      </li>
+      <li>
+        <strong>Measurement protocol matters.</strong> Key-generation time should be reported separately from
+        steady-state encapsulation/sign loops when evaluating production-like workloads.
+      </li>
+      <li>
+        <strong>Educational scope.</strong> The Flask demo uses a development server and fresh keys per request —
+        suitable for teaching and experimentation, not production deployment.
+      </li>
+    </ul>
+  </section>
+
+  <section id="deployment">
+    <h2>Real-World Deployment &amp; HTTPS</h2>
+    <p>
+      Deploying PQC on the web exposes practical tensions between security and performance. Industry reporting
+      notes that quantum-resistant cryptographic material in certificate transparency can be on the order of
+      <strong>~40× larger</strong> than classical material, while a typical X.509 chain today is already
+      ~4 KB during TLS handshake setup.
+    </p>
+    <p>
+      Larger handshakes slow TLS, risk compatibility with middleboxes, and may push users to disable new
+      protections. The ecosystem is exploring <strong>Merkle tree certificates (MTCs)</strong> — structures
+      that verify inclusion in a large set using a compact proof instead of transmitting a long serialized
+      chain of signatures.
+    </p>
+    <p>
+      Google, Cloudflare, and certificate authorities are actively testing ML-DSA and related material so
+      forgery would require breaking <em>both</em> classical and post-quantum assumptions. Our classroom metrics
+      — larger artifacts, higher CPU cost — mirror the constraints engineers face when quantum-proofing HTTPS.
+    </p>
+  </section>
+
+  <section id="references">
+    <h2>References</h2>
+    <ol class="references">
+      <li>
+        <strong>[1]</strong> A. Scrivano, "A Comparative Study of Classical and Post-Quantum Cryptographic
+        Algorithms in the Era of Quantum Computing," arXiv:2508.00832, 2025.
+        <a href="https://arxiv.org/abs/2508.00832">https://arxiv.org/abs/2508.00832</a>
+      </li>
+      <li>
+        <strong>[2]</strong> NIST, Digital Signature Standard (DSS), FIPS PUB 186-4.
+        <a href="https://doi.org/10.6028/NIST.FIPS.186-4">doi:10.6028/NIST.FIPS.186-4</a>
+      </li>
+      <li>
+        <strong>[3]</strong> NIST, Module-Lattice-Based Digital Signature Standard, FIPS PUB 204, Jan. 2024.
+        <a href="https://doi.org/10.6028/NIST.FIPS.204">doi:10.6028/NIST.FIPS.204</a>
+      </li>
+      <li>
+        <strong>[4]</strong> J. Schneider and I. Smalley, "Quantum computing," IBM, Aug. 2024.
+        <a href="https://www.ibm.com/think/topics/quantum-computing">IBM Think</a>
+      </li>
+      <li>
+        <strong>[5]</strong> NIST, Module-Lattice-Based Key-Encapsulation Mechanism Standard, FIPS PUB 203.
+        <a href="https://doi.org/10.6028/NIST.FIPS.203">doi:10.6028/NIST.FIPS.203</a>
+      </li>
+      <li>
+        <strong>[6]</strong> D. Goodin, "Google quantum-proofs HTTPS by squeezing 15kB of data into 700-byte space,"
+        <em>Ars Technica</em>, Feb. 2026.
+        <a href="https://arstechnica.com/security/2026/02/google-is-using-clever-math-to-quantum-proof-https-certificates/">Ars Technica</a>
+      </li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    CSIT 567 · Post-Quantum Cryptography Comparison ·
+    <a href="https://github.com/faithchris/pqc-crypto-comparison">GitHub repository</a>
+  </p>
+</footer>
+
+</body>
+</html>
