@@ -1,0 +1,35 @@
+TABLE III — Size of each cryptographic output
+
+Paste options:
+(1) Copy the MARKDOWN block into a Markdown/LaTeX editor, or
+(2) Copy the TAB-SEPARATED block into Word → Insert → Table → Convert Text to Table → Tabs.
+
+
+--- MARKDOWN (for editors that support tables) ---
+
+| Algorithm      | Output           | Size (bytes) | Size (bits) | Explanation |
+|----------------|------------------|-------------:|------------:|-------------|
+| ECDSA (P-256)  | Signature        | 72           | 576         | Length of signature bytes (not message length). |
+| ECDSA (P-256)  | Public key       | 91           | 728         | DER-encoded public key. |
+| ML-DSA-44      | Signature        | 2420         | 19360       | Length of lattice signature. |
+| ML-DSA-44      | Public key       | 1312         | 10496       | Lattice public key bytes. |
+| ML-KEM-768     | Ciphertext       | 1088         | 8704        | What encapsulation sends (binary; often shown as base64 in the UI). |
+| ML-KEM-768     | Public key (ek)  | 1184         | 9472        | Receiver encapsulation key size. |
+| ECDH (P-256)   | Peer public key  | 91           | 728         | No KEM-style ciphertext; ECDH exchanges keys then derives a shared secret. |
+
+
+--- TAB-SEPARATED (for Microsoft Word) ---
+Copy from "Algorithm" through the last line only:
+
+Algorithm	Output	Size (bytes)	Size (bits)	Explanation
+ECDSA (P-256)	Signature	72	576	Length of signature bytes (not message length).
+ECDSA (P-256)	Public key	91	728	DER-encoded public key.
+ML-DSA-44	Signature	2420	19360	Length of lattice signature.
+ML-DSA-44	Public key	1312	10496	Lattice public key bytes.
+ML-KEM-768	Ciphertext	1088	8704	What encapsulation sends (binary; often shown as base64 in the UI).
+ML-KEM-768	Public key (ek)	1184	9472	Receiver encapsulation key size.
+ECDH (P-256)	Peer public key	91	728	No KEM-style ciphertext; ECDH exchanges keys then derives a shared secret.
+
+
+--- IEEE-style caption (place above or below table) ---
+TABLE III: SIZE OF CRYPTOGRAPHIC OUTPUTS (BYTES AND BITS). SIGNATURE LENGTHS REFER TO THE SIGNATURE OBJECT, NOT THE USER MESSAGE. ML-KEM INCLUDES A CIPHERTEXT ROW; ECDH HAS NO KEM-STYLE CIPHERTEXT.

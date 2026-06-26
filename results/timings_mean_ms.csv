@@ -1,0 +1,12 @@
+operation,algorithm,mean_ms,stdev_ms,n_runs
+keygen,Post-quantum,6.2273,0.1757,30
+sign,Post-quantum,37.1950,23.3591,30
+verify,Post-quantum,7.4866,0.2413,30
+keygen,Classical,0.1188,0.1934,30
+sign,Classical,0.1904,0.4779,30
+verify,Classical,0.1132,0.0133,30
+KEM keygen,Post-quantum,3.5194,0.0851,30
+encapsulate,Post-quantum,4.5490,0.2036,30
+decapsulate,Post-quantum,6.0865,0.1681,30
+ephemeral keygen,Classical,0.0257,0.0009,30
+key exchange,Classical,0.1195,0.0166,30

@@ -1,0 +1,14 @@
+References (IEEE-style, single list — copy into your paper)
+
+[1] A. Scrivano, “A Comparative Study of Classical and Post-Quantum Cryptographic Algorithms in the Era of Quantum Computing,” arXiv:2508.00832, 2025. [Online]. Available: https://arxiv.org/abs/2508.00832
+
+[2] NIST, Digital Signature Standard (DSS), FIPS PUB 186-4. doi: 10.6028/NIST.FIPS.186-4. [Online]. Available: https://doi.org/10.6028/NIST.FIPS.186-4
+    (PDF) https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
+
+[3] NIST, Module-Lattice-Based Digital Signature Standard, FIPS PUB 204, Gaithersburg, MD, Jan. 2024. doi: 10.6028/NIST.FIPS.204. [Online]. Available: https://doi.org/10.6028/NIST.FIPS.204
+    (CSRC) https://csrc.nist.gov/publications/detail/fips/204/final
+
+[4] J. Schneider and I. Smalley, “Quantum computing,” IBM, Aug. 5, 2024. [Online]. Available: https://www.ibm.com/think/topics/quantum-computing
+
+[5] NIST, Module-Lattice-Based Key-Encapsulation Mechanism Standard, FIPS PUB 203, Gaithersburg, MD. doi: 10.6028/NIST.FIPS.203. [Online]. Available: https://doi.org/10.6028/NIST.FIPS.203
+    (CSRC) https://csrc.nist.gov/publications/detail/fips/203/final

@@ -1,0 +1,54 @@
+REPORT TABLES — Post-quantum vs classical comparison (from benchmark.py)
+Environment: Linux 6.8.0-106-generic | Python 3.12.3 | benchmark rounds N = 30
+
+How to read these tables:
+  • Mean / Std dev = wall-clock time in milliseconds, averaged over N runs.
+  • Each run generates new keys (except where the operation name describes one step only).
+  • TABLE III sizes are from one representative key generation (sizes are fixed by the algorithm).
+
+--------------------------------------------------------------------------------
+TABLE I — Digital signatures: how long each step takes
+--------------------------------------------------------------------------------
+Compares post-quantum ML-DSA-44 (FIPS 204) with classical ECDSA on curve P-256 (FIPS 186-4).
+
+Algorithm        Operation                   Mean (ms)    Std dev      N
+--------------------------------------------------------------------------------
+ML-DSA-44        Key pair generation            6.2273     0.1757     30
+ML-DSA-44        Sign message                  37.1950    23.3591     30
+ML-DSA-44        Verify signature               7.4866     0.2413     30
+ECDSA (P-256)    Key pair generation            0.1188     0.1934     30
+ECDSA (P-256)    Sign message                   0.1904     0.4779     30
+ECDSA (P-256)    Verify signature               0.1132     0.0133     30
+
+--------------------------------------------------------------------------------
+TABLE II — Key agreement: how long each step takes
+--------------------------------------------------------------------------------
+Compares post-quantum ML-KEM-768 (FIPS 203) with classical ECDH on P-256.
+Encapsulate produces a ciphertext; decapsulate recovers the shared secret. ECDH has no ciphertext.
+
+Algorithm        Operation                   Mean (ms)    Std dev      N
+--------------------------------------------------------------------------------
+ML-KEM-768       Key pair generation            3.5194     0.0851     30
+ML-KEM-768       Encapsulate (ciphertext)       4.5490     0.2036     30
+ML-KEM-768       Decapsulate (shared secret)     6.0865     0.1681     30
+ECDH (P-256)     Ephemeral key generation       0.0257     0.0009     30
+ECDH (P-256)     Derive shared secret           0.1195     0.0166     30
+
+--------------------------------------------------------------------------------
+TABLE III — Size of each cryptographic output (bytes and bits)
+--------------------------------------------------------------------------------
+Use this table for “how big is the signature / key / ciphertext on the wire.”
+
+Algorithm        Output                    Bytes       Bits  Note
+--------------------------------------------------------------------------------
+ECDSA (P-256)    Signature                    72        576  Length of signature bytes (not your message length).
+ECDSA (P-256)    Public key                   91        728  DER-encoded public key.
+ML-DSA-44        Signature                  2420      19360  Length of lattice signature.
+ML-DSA-44        Public key                 1312      10496  Lattice public key bytes.
+ML-KEM-768       Ciphertext                 1088       8704  What encapsulation sends (binary; often shown as base64 in the UI).
+ML-KEM-768       Public key (ek)            1184       9472  Receiver encapsulation key size.
+ECDH (P-256)     Peer public key              91        728  No KEM-style ciphertext; ECDH only exchanges keys then derives a secret.
+
+--------------------------------------------------------------------------------
+End of tables
+--------------------------------------------------------------------------------

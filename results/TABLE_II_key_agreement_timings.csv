@@ -1,0 +1,8 @@
+TABLE II — Key agreement: mean time (ms) per operation
+
+Algorithm,Operation,Mean_ms,Std_dev_ms,N_runs
+ML-KEM-768,Key pair generation,3.5194,0.0851,30
+ML-KEM-768,Encapsulate (ciphertext),4.5490,0.2036,30
+ML-KEM-768,Decapsulate (shared secret),6.0865,0.1681,30
+ECDH (P-256),Ephemeral key generation,0.0257,0.0009,30
+ECDH (P-256),Derive shared secret,0.1195,0.0166,30

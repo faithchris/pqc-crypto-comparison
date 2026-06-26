@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Classical vs post-quantum crypto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a222c;
+      --border: #2d3a47;
+      --text: #e8ecf0;
+      --muted: #8b9bab;
+      --classical: #3d8fd1;
+      --pq: #c9a227;
+      --danger: #e07070;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Literata", Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 52ch;
+      margin: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.85rem 1rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: 2px solid var(--classical);
+      outline-offset: 2px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      font-family: "Literata", Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.65rem 1.15rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    button:not(:disabled):hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-sign {
+      background: color-mix(in srgb, var(--classical) 22%, var(--surface));
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--classical) 45%, var(--border));
+    }
+
+    .btn-kem {
+      background: color-mix(in srgb, var(--pq) 18%, var(--surface));
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--pq) 40%, var(--border));
+    }
+
+    .status {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      min-height: 1.4em;
+    }
+
+    .status.err { color: var(--danger); }
+
+    .panel {
+      margin-top: 2rem;
+      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      margin: 0 0 1rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 1rem;
+      background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+    }
+
+    .card h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .tag.classical { background: color-mix(in srgb, var(--classical) 25%, transparent); color: #9fd0f0; }
+    .tag.pq { background: color-mix(in srgb, var(--pq) 25%, transparent); color: #f0d878; }
+
+    dl {
+      margin: 0;
+      display: grid;
+      gap: 0.35rem 0.75rem;
+      grid-template-columns: auto 1fr;
+      font-size: 0.88rem;
+    }
+
+    dt {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    dd {
+      margin: 0;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+
+    details {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .blob {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      max-height: 120px;
+      overflow: auto;
+      background: var(--bg);
+      border-radius: 6px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .note {
+      margin-top: 1.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .file-protocol-banner {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 1.25rem 1.5rem;
+      background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+      border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+      border-radius: var(--radius);
+      color: var(--text);
+    }
+
+    .file-protocol-banner strong { color: #f5b5b5; }
+
+    .file-protocol-banner code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85em;
+      background: var(--bg);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .file-protocol-banner ol {
+      margin: 0.75rem 0 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .file-protocol-banner li { margin: 0.35rem 0; }
+
+    #fileProtocolBanner { display: none; }
+
+    html.opened-as-file #fileProtocolBanner { display: block; }
+
+    html.opened-as-file #mainWrap { display: none; }
+  </style>
+  <script>
+    if (typeof location !== "undefined" && location.protocol === "file:")
+      document.documentElement.classList.add("opened-as-file");
+  </script>
+</head>
+<body>
+  <div id="fileProtocolBanner" class="file-protocol-banner">
+    <p><strong>You opened the HTML file directly in the browser.</strong> The buttons cannot talk to Python that way.</p>
+    <p style="margin:0.5rem 0 0;color:var(--muted);font-size:0.92rem;">Run the Flask app in a terminal, then use the URL it prints (usually <strong style="color:var(--text)">http://127.0.0.1:5000</strong>).</p>
+    <ol>
+      <li><code>cd</code> to your project folder (where <code>encryptionCompare_v1.py</code> lives).</li>
+      <li><code>source .venv/bin/activate</code> — or create a venv and <code>pip install flask cryptography dilithium-py kyber-py</code>.</li>
+      <li><code>python encryptionCompare_v1.py</code></li>
+      <li>Open <strong>http://127.0.0.1:5000</strong> in the browser — not the <code>templates/index.html</code> file.</li>
+    </ol>
+  </div>
+  <div class="wrap" id="mainWrap">
+    <header>
+      <h1>Classical vs post-quantum comparison</h1>
+      <p class="lede">
+        Compare ECDSA / ECDH with ML-DSA-44 and ML-KEM-768 on the same message.
+        Timings and sizes are from fresh keys per request (local demo only).
+      </p>
+    </header>
+
+    <section>
+      <label for="message">Message</label>
+      <textarea id="message" placeholder="Enter text to attach to the request…"></textarea>
+      <div class="actions">
+        <button type="button" class="btn-sign" id="btnSign">Run signature comparison</button>
+        <button type="button" class="btn-kem" id="btnKem">Run key agreement (KEM) comparison</button>
+      </div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" id="signPanel" hidden>
+      <h2>Digital signatures</h2>
+      <div class="grid-2">
+        <div class="card" id="signEcdsa"></div>
+        <div class="card" id="signMlDsa"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="kemPanel" hidden>
+      <h2>Key encapsulation / agreement</h2>
+      <div class="grid-2">
+        <div class="card" id="kemEcdh"></div>
+        <div class="card" id="kemMlKem"></div>
+      </div>
+    </section>
+
+    <p class="note">
+      The server uses Flask’s development mode. Do not expose this app to the public internet.
+    </p>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function blobDetails(label, value) {
+      if (!value) return "";
+      const short = value.length > 48 ? value.slice(0, 48) + "…" : value;
+      return `
+        <details>
+          <summary>${label} (base64)</summary>
+          <div class="blob" title="full value in details">${value}</div>
+        </details>
+      `;
+    }
+
+    function setStatus(text, isError) {
+      const el = $("status");
+      el.textContent = text;
+      el.classList.toggle("err", !!isError);
+    }
+
+    async function postForm(url) {
+      const message = $("message").value;
+      const fd = new FormData();
+      fd.append("message", message);
+      const res = await fetch(url, { method: "POST", body: fd });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || res.statusText);
+      }
+      return res.json();
+    }
+
+    function renderSign(data) {
+      $("signPanel").hidden = false;
+      const e = data.ecdsa;
+      const m = data.ml_dsa;
+      $("signEcdsa").innerHTML = `
+        <h3>ECDSA (P-256) <span class="tag classical">Classical</span></h3>
+        <dl>
+          <dt>Sign</dt><dd>${e.sign_time} ms</dd>
+          <dt>Verify</dt><dd>${e.verify_time} ms</dd>
+          <dt>Signature</dt><dd>${e.signature_size_bytes} B (${e.signature_size_bits} bits)</dd>
+          <dt>Public key</dt><dd>${e.public_key_size_bytes} B (${e.public_key_size_bits} bits)</dd>
+        </dl>
+        ${blobDetails("Signature", e.signature)}
+        ${blobDetails("Public key", e.public_key)}
+      `;
+      $("signMlDsa").innerHTML = `
+        <h3>ML-DSA-44 <span class="tag pq">Post-quantum</span></h3>
+        <dl>
+          <dt>Sign</dt><dd>${m.sign_time} ms</dd>
+          <dt>Verify</dt><dd>${m.verify_time} ms</dd>
+          <dt>Signature</dt><dd>${m.signature_size_bytes} B (${m.signature_size_bits} bits)</dd>
+          <dt>Public key</dt><dd>${m.public_key_size_bytes} B (${m.public_key_size_bits} bits)</dd>
+        </dl>
+        ${blobDetails("Signature", m.signature)}
+        ${blobDetails("Public key", m.public_key)}
+      `;
+    }
+
+    function renderKem(data) {
+      $("kemPanel").hidden = false;
+      const h = data.ecdh;
+      const k = data.ml_kem;
+      $("kemEcdh").innerHTML = `
+        <h3>ECDH (P-256) <span class="tag classical">Classical</span></h3>
+        <dl>
+          <dt>Ephemeral keygen</dt><dd>${h.keygen_time} ms</dd>
+          <dt>Key exchange</dt><dd>${h.key_exchange_time} ms</dd>
+          <dt>Public key</dt><dd>${h.public_key_size_bytes} B (${h.public_key_size_bits} bits)</dd>
+        </dl>
+        ${blobDetails("Shared secret", h.shared_secret)}
+        ${blobDetails("Public key", h.public_key)}
+      `;
+      $("kemMlKem").innerHTML = `
+        <h3>ML-KEM-768 <span class="tag pq">Post-quantum</span></h3>
+        <dl>
+          <dt>Encapsulate</dt><dd>${k.encap_time} ms</dd>
+          <dt>Decapsulate</dt><dd>${k.decap_time} ms</dd>
+          <dt>Ciphertext</dt><dd>${k.ciphertext_size_bytes} B (${k.ciphertext_size_bits} bits)</dd>
+          <dt>Public key</dt><dd>${k.public_key_size_bytes} B (${k.public_key_size_bits} bits)</dd>
+        </dl>
+        ${blobDetails("Ciphertext", k.ciphertext)}
+        ${blobDetails("Shared secret", k.shared_secret)}
+        ${blobDetails("Encapsulation key", k.public_key)}
+      `;
+    }
+
+    $("btnSign").addEventListener("click", async () => {
+      const btnSign = $("btnSign");
+      const btnKem = $("btnKem");
+      btnSign.disabled = btnKem.disabled = true;
+      setStatus("Running signature comparison…");
+      try {
+        const data = await postForm("/sign");
+        renderSign(data);
+        setStatus("Signature comparison finished.");
+      } catch (err) {
+        setStatus(err.message || String(err), true);
+      } finally {
+        btnSign.disabled = btnKem.disabled = false;
+      }
+    });
+
+    $("btnKem").addEventListener("click", async () => {
+      const btnSign = $("btnSign");
+      const btnKem = $("btnKem");
+      btnSign.disabled = btnKem.disabled = true;
+      setStatus("Running KEM comparison…");
+      try {
+        const data = await postForm("/encrypt");
+        renderKem(data);
+        setStatus("KEM comparison finished.");
+      } catch (err) {
+        setStatus(err.message || String(err), true);
+      } finally {
+        btnSign.disabled = btnKem.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

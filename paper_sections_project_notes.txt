@@ -1,0 +1,70 @@
+================================================================================
+PASTE INTO YOUR PAPER (CSIT 567 project notes alignment)
+Edit section numbers (II, III, …) to match your template.
+================================================================================
+
+--- OPTIONAL: tighten ABSTRACT (replace your KEM sentence) ---
+We provide a small web application that exercises ECDSA (P-256) and ML-DSA-44 for signing and verification, and ECDH (P-256) and ML-KEM-768 for key agreement. For ML-KEM we emphasize the **ciphertext** produced by encapsulation (base64-encoded in the browser because ciphertext is binary); the shared secret is derived by decapsulation but is not the on-wire “encrypted” payload in the same sense as ciphertext. ECDH establishes a shared secret **without** a ciphertext comparable to ML-KEM’s.
+
+--- KEYWORDS (add if missing) ---
+ML-KEM; ECDH; key encapsulation; Shor’s algorithm; HTTPS; Merkle tree certificates
+
+================================================================================
+II. RELATED WORK  (move your Scrivano/FIPS paragraph here if it sits under “Project Plans”)
+================================================================================
+[Paste your existing related-work paragraph unchanged, ending with your hands-on toolchain sentence.]
+
+================================================================================
+NEW: insert after algorithm overview or inside METHODS
+III-F. Artifact sizes, signatures, and display conventions
+================================================================================
+**Signature sizes.** We report the length of the **digital signature object** produced by the signing algorithm (ECDSA or ML-DSA), measured in **bits** (primary) and, where helpful, bytes. Signature size does **not** mean the length of the user’s message string.
+
+**Key encapsulation (ML-KEM).** The principal public output of encapsulation is the **ciphertext** *c*; the receiver uses the decapsulation key to recover a **shared secret** *K*. We report ciphertext size in **bits** (and bytes where noted). In the web demo, ciphertext is **base64-encoded** so binary data can be shown safely in HTML.
+
+**ECDH.** Elliptic-curve Diffie–Hellman agreement produces a **shared secret** from two key pairs; there is **no** ML-KEM-style ciphertext. Comparisons therefore contrast “shared-secret establishment cost” for ECDH with “encapsulation/decapsulation and ciphertext size” for ML-KEM, not ciphertext-to-ciphertext size.
+
+================================================================================
+NEW: inside METHODS / Performance (course measurement protocol)
+III-G. Key-encapsulation timing protocol
+================================================================================
+Following course guidance, we **generate static (long-lived) key pairs once** per trial, then perform **N = 100** repetitions of encapsulation and decapsulation (ML-KEM) or ephemeral key generation plus exchange (ECDH, as appropriate to mirror two-message flows) **without** charging key-pair creation to those 100 loop iterations. **Key-generation time** is reported **separately** from the repeated-operation mean. This isolates steady-state encapsulation/decapsulation cost from one-time setup.
+
+[If your code is not updated yet: either implement this protocol before final submission, or temporarily write “We are aligning the implementation with this protocol for the final experiments” and update after coding.]
+
+================================================================================
+NEW SECTION (outline item 4)
+IV. Shor’s Algorithm and the Motivation for PQC
+================================================================================
+**Shor’s algorithm** is a quantum algorithm that solves the **integer factorization** and **discrete logarithm** problems in polynomial time on a sufficiently large, fault-tolerant quantum computer. RSA relies on the hardness of factoring large composites; finite-field and elliptic-curve schemes used in practice (including ECDSA and ECDH over curves such as P-256) rely on variants of the discrete-logarithm problem. If Shor’s algorithm could be run at cryptographically relevant scales, those problems would become easy, breaking confidentiality and authenticity for systems that depend only on those assumptions.
+
+**Relation to PQC.** Post-quantum schemes are chosen so that, as of current knowledge, **no** polynomial-time quantum attack analogous to Shor’s is known. Lattice-based standards such as ML-DSA and ML-KEM instead rest on different hardness assumptions (e.g., structured lattice problems) for which Shor’s algorithm does not directly apply in the same way.
+
+================================================================================
+SHORT PARAGRAPH (outline / report notes: asymmetric vs symmetric)
+================================================================================
+Post-quantum standards addressed in this project target **public-key (asymmetric)** problems: signatures and key encapsulation. **Symmetric** cryptography (e.g., AES-GCM) is not the focus of ML-DSA/ML-KEM; symmetric algorithms are generally considered less threatened by Shor’s algorithm, and PQC deployment typically **hybridizes** asymmetric PQC with efficient symmetric data encryption.
+
+================================================================================
+NEW SECTION (outline item 6; cite Ars)
+VII. REAL-WORLD DEPLOYMENT AND HTTPS (optional numbering: VI or VII)
+================================================================================
+Deploying PQC on the web exposes practical tensions between security and performance. Reporting on Google and industry partners, Goodin notes that **quantum-resistant cryptographic material** used in certificate transparency can be on the order of **~40× larger** than classical material, while a **typical X.509 chain** today is already on the order of **~4 KB** of data sent during connection setup [6]. Larger handshakes slow TLS, risk compatibility with middleboxes, and may push users to disable new protections—Cloudflare’s Bas Westerbaan is quoted that **larger certificates mean slower handshakes and leaving more users behind**, and that users may disable new encryption if browsing slows [6].
+
+To avoid shipping full oversized chains, the ecosystem is exploring **Merkle tree certificates (MTCs)**: a structure that can allow verification of inclusion in a large set using a **compact proof** instead of transmitting a long serialized chain of signatures [6]. Google describes adding **ML-DSA** (and related material) so that forgery would require breaking **both** classical and post-quantum assumptions, part of a **quantum-resistant root store** alongside Chrome’s existing root program [6]. The article reports **Chrome** already containing implementation work, **Cloudflare** testing on the order of **~1,000** certificates, with **CAs** expected eventually to operate parts of the infrastructure Cloudflare pilots today [6]. These developments illustrate that our classroom metrics (larger artifacts, higher CPU cost) mirror **real constraints** engineers face when quantum-proofing HTTPS.
+
+================================================================================
+REFERENCES — add as [6]
+================================================================================
+[6] D. Goodin, “Google quantum-proofs HTTPS by squeezing 15kB of data into 700-byte space,” Ars Technica, Feb. 2026. [Online]. Available: https://arstechnica.com/security/2026/02/google-is-using-clever-math-to-quantum-proof-https-certificates/
+
+(If your instructor prefers the shorter URL slug title, you may shorten the quoted title to match your style guide; keep author, venue, year, URL.)
+
+================================================================================
+OPTIONAL: 1M-entry dataset (only if you will do it)
+================================================================================
+As an extension, we may precompute benchmarks over a large corpus (e.g., on the order of 10^6 messages of 10–150 characters built from dictionary words) and summarize distributions offline. This is not required for the core demonstration.
+
+================================================================================
+END
+================================================================================

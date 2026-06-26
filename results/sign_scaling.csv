@@ -1,0 +1,5 @@
+message_length_bytes,ecdsa_sign_mean_ms,ml_dsa_sign_mean_ms,n_runs_per_point
+10,0.1103,33.2510,15
+100,0.1103,43.7732,15
+1000,0.1169,34.3999,15
+10000,0.1183,35.7118,15

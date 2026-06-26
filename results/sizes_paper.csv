@@ -1,0 +1,8 @@
+category,scheme,artifact,size_bytes,size_bits,note
+Digital signatures,ECDSA (P-256),Signature,72,576,DER-encoded signature object (not message length).
+Digital signatures,ECDSA (P-256),Public key,91,728,SubjectPublicKeyInfo DER (SECP256R1).
+Digital signatures,ML-DSA-44,Signature,2420,19360,Raw ML-DSA signature bytes.
+Digital signatures,ML-DSA-44,Public key,1312,10496,Raw ML-DSA public key bytes.
+Key agreement,ML-KEM-768,Ciphertext,1088,8704,Output of encapsulation (on-wire style payload).
+Key agreement,ML-KEM-768,Public key (ek),1184,9472,ML-KEM encapsulation key.
+Key agreement,ECDH (P-256),Public key (static peer),91,728,Peer SPKI DER; ECDH has no ciphertext comparable to ML-KEM.

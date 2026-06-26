@@ -1,0 +1,10 @@
+TABLE III — Size of each cryptographic output
+
+Algorithm,Output,Size_bytes,Size_bits,Explanation
+ECDSA (P-256),Signature,72,576,Length of signature bytes (not your message length).
+ECDSA (P-256),Public key,91,728,DER-encoded public key.
+ML-DSA-44,Signature,2420,19360,Length of lattice signature.
+ML-DSA-44,Public key,1312,10496,Lattice public key bytes.
+ML-KEM-768,Ciphertext,1088,8704,What encapsulation sends (binary; often shown as base64 in the UI).
+ML-KEM-768,Public key (ek),1184,9472,Receiver encapsulation key size.
+ECDH (P-256),Peer public key,91,728,No KEM-style ciphertext; ECDH only exchanges keys then derives a secret.

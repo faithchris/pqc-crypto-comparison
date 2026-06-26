@@ -1,0 +1,9 @@
+TABLE I — Digital signatures: mean time (ms) per operation
+
+Algorithm,Operation,Mean_ms,Std_dev_ms,N_runs
+ML-DSA-44,Key pair generation,6.2273,0.1757,30
+ML-DSA-44,Sign message,37.1950,23.3591,30
+ML-DSA-44,Verify signature,7.4866,0.2413,30
+ECDSA (P-256),Key pair generation,0.1188,0.1934,30
+ECDSA (P-256),Sign message,0.1904,0.4779,30
+ECDSA (P-256),Verify signature,0.1132,0.0133,30

@@ -1,0 +1,27 @@
+IV. Current Status and Preliminary Results
+
+We have two working parts of the toolchain. First, a Flask web application (encryptionCompare_v1.py) serves a browser interface at http://127.0.0.1:5000 and returns JSON metrics for classical versus post-quantum signatures and key agreement. Second, an offline script benchmark.py (and an optional Jupyter notebook) repeats measurements many times, writes CSV summaries under a results/ directory, and saves PNG plots for the report. All timings below are wall-clock measurements on [your OS, CPU model, Python version] unless noted.
+
+Web demonstration. The interface accepts an arbitrary text message. Users can run a signature comparison (ECDSA P-256 vs ML-DSA-44) and a key agreement comparison (ECDH P-256 vs ML-KEM-768). The UI reports sign and verify times (where applicable), encapsulation and decapsulation times for ML-KEM, ephemeral key generation and exchange times for ECDH, and artifact sizes in bytes and bits. Ciphertext and keys are shown base64-encoded where the underlying values are binary. Fig. 1 shows the interface after executing both comparisons. [Optional: Fig. 2 shows the same tool with the sample message in the input field.]
+
+Automated benchmark. For reproducible statistics we run python benchmark.py with default settings: 30 iterations for aggregate timing bars, and 15 runs per point for the scaling study at message lengths 10, 100, 1000, and 10000 bytes (configurable via command-line flags). Outputs include sizes_bytes.csv, timings_mean_ms.csv, sign_scaling.csv, and three figures. Fig. 3 plots artifact sizes (signatures, public keys, ML-KEM ciphertext, etc.). Fig. 4 shows mean operation times with error bars (sample standard deviation) across repeated runs. Fig. 5 plots mean ECDSA vs ML-DSA sign time as a function of message length (log-scaled horizontal axis). Together, these complement the single-shot readings from the web UI with aggregated behavior.
+
+Use the richer exports from benchmark.py (run: python benchmark.py):
+
+  • results/timings_paper.csv — Table I (timings): category, scheme, step, what was measured, mean_ms, stdev_ms, n_runs
+  • results/sizes_paper.csv  — Table II (sizes): category, scheme, artifact, size_bytes, size_bits, short note
+
+Open in Excel/LibreOffice and copy into Word, or shrink columns for IEEE (e.g. drop what_was_measured into caption text).
+
+TABLE I — Mean wall-clock time (ms) ± sample standard deviation. Source: timings_paper.csv. N = [your n_runs].
+
+TABLE II — Static artifact sizes (one sample after keygen). Source: sizes_paper.csv. Bits = 8 × bytes.
+
+Interpretation. Results so far match the expected tradeoff: post-quantum signatures and KEM material are much larger than classical elliptic-curve artifacts, and sign, verify, encapsulation, and decapsulation tend to take longer on our classical CPU using these Python libraries—consistent with the cost of stronger quantum-resistant parameters. Exact milliseconds vary by machine and load; the figures and table document our environment. The demo is suitable for local teaching and experimentation only (Flask development server, not a production deployment).
+
+Figure captions:
+Fig. 1. Web UI comparing ECDSA vs ML-DSA (signatures) and ECDH vs ML-KEM-768 (key agreement). Times in ms; sizes in bytes and bits. Fresh key material per request.
+Fig. 2. [Optional] Same tool with sample message visible in the input field.
+Fig. 3. Cryptographic artifact sizes (bytes) from benchmark output.
+Fig. 4. Mean operation times (ms) ± sample standard deviation; N = 30 runs.
+Fig. 5. Mean sign time vs message length; N = 15 runs per length; log-scaled message size.

@@ -1,0 +1,8 @@
+artifact,size_bytes
+ECDSA signature,72
+ECDSA public key (DER SPKI),91
+ML-DSA-44 signature,2420
+ML-DSA-44 public key,1312
+ML-KEM-768 ciphertext,1088
+ML-KEM-768 public key (ek),1184
+ECDH public key (DER SPKI),91

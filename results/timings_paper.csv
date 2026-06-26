@@ -1,0 +1,12 @@
+category,scheme,step,what_was_measured,mean_ms,stdev_ms,n_runs
+Digital signatures,ML-DSA-44,Key pair generation,"Generate one ML-DSA public/secret key pair (FIPS 204, ML-DSA-44).",6.2273,0.1757,30
+Digital signatures,ML-DSA-44,Sign,Sign a fixed UTF-8 benchmark message (same payload every run).,37.1950,23.3591,30
+Digital signatures,ML-DSA-44,Verify,Verify signature under the generated public key.,7.4866,0.2413,30
+Digital signatures,ECDSA (P-256),Key pair generation,Generate one ECDSA key pair on curve SECP256R1.,0.1188,0.1934,30
+Digital signatures,ECDSA (P-256),Sign,Sign the same benchmark message with SHA-256 (ECDSA).,0.1904,0.4779,30
+Digital signatures,ECDSA (P-256),Verify,Verify ECDSA signature under the generated public key.,0.1132,0.0133,30
+Key agreement,ML-KEM-768,Key pair generation,"Generate ML-KEM encapsulation/decapsulation key pair (FIPS 203, ML-KEM-768).",3.5194,0.0851,30
+Key agreement,ML-KEM-768,Encapsulate,From receiver public key: produce ciphertext and shared secret.,4.5490,0.2036,30
+Key agreement,ML-KEM-768,Decapsulate,From ciphertext + decapsulation key: recover shared secret.,6.0865,0.1681,30
+Key agreement,ECDH (P-256),Ephemeral key generation,Generate ephemeral SECP256R1 key pair (mirrors demo flow).,0.0257,0.0009,30
+Key agreement,ECDH (P-256),Shared secret derivation,ECDH exchange between ephemeral private key and peer static public key.,0.1195,0.0166,30
