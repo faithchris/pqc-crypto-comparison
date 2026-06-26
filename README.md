@@ -2,7 +2,7 @@
 
 CSIT 567 project comparing **ECDSA/ECDH** (classical) with **ML-DSA-44/ML-KEM-768** (post-quantum).
 
-**Project site:** [faithchris.github.io/pqc-crypto-comparison](https://faithchris.github.io/pqc-crypto-comparison/) (after enabling GitHub Pages — see below)
+**Project site:** [faithchris.github.io/pqc-crypto-comparison](https://faithchris.github.io/pqc-crypto-comparison/)
 
 ## Features
 
@@ -58,13 +58,7 @@ benchmark_notebook.ipynb  # Optional Jupyter workflow
 
 ## GitHub Pages
 
-The project paper site lives in `docs/` (tables, figures, findings, references).
-
-1. Push this repo to GitHub
-2. Go to **Settings → Pages**
-3. **Source:** Deploy from branch `main`
-4. **Folder:** `/docs`
-5. Save — the site will be at `https://faithchris.github.io/pqc-crypto-comparison/`
+The project paper site is `index.html` at the repo root (tables, figures, findings, references). GitHub Pages serves it automatically when **Settings → Pages → Branch: main, Folder: / (root)**.
 
 ## License
 
